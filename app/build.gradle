@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-  namespace 'com.mycios.nfcwriter'
+  namespace 'com.mycios.nfcwriter'        // <- R package (matches your Kotlin package)
   compileSdk 35
 
   defaultConfig {
-    applicationId "com.mycios.nfcwriter.raw"   // Option B
+    applicationId "com.mycios.nfcwriter.raw"   // <- side-by-side app id
     minSdk 21
     targetSdk 35
     versionCode 2
