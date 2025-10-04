@@ -11,7 +11,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      # >>> CHANGE THIS IF YOUR PROJECT IS IN A SUBFOLDER <<<
+      # <<< CHANGE THIS if your Android project is in a subfolder >>>
       PROJECT_DIR: .   # e.g. "NfcWriterRawOptionB" or "NfcWriterRaw"
 
     steps:
@@ -24,33 +24,41 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # Install Android SDK cmdline-tools and required packages
+      # ---- Install Android SDK (with inline PATH export) ----
       - name: Install Android SDK
         run: |
-          sudo mkdir -p /usr/local/lib/android/sdk/cmdline-tools
-          curl -fo sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-          sudo unzip -q sdk.zip -d /usr/local/lib/android/sdk/cmdline-tools
-          sudo mv /usr/local/lib/android/sdk/cmdline-tools/cmdline-tools /usr/local/lib/android/sdk/cmdline-tools/latest
-          echo "ANDROID_SDK_ROOT=/usr/local/lib/android/sdk" >> $GITHUB_ENV
-          echo "/usr/local/lib/android/sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
-          echo "/usr/local/lib/android/sdk/platform-tools" >> $GITHUB_PATH
-          yes | sdkmanager --licenses
-          sdkmanager --install "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          set -e
+          SDK_ROOT=/usr/local/lib/android/sdk
+          sudo mkdir -p "$SDK_ROOT/cmdline-tools"
+          curl -fo cmdtools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          sudo unzip -q cmdtools.zip -d "$SDK_ROOT/cmdline-tools"
+          sudo mv "$SDK_ROOT/cmdline-tools/cmdline-tools" "$SDK_ROOT/cmdline-tools/latest"
 
-      # Install Gradle (since there's no ./gradlew)
+          # Make sdkmanager available BOTH now (export) and for later steps (GITHUB_PATH)
+          export ANDROID_SDK_ROOT="$SDK_ROOT"
+          export PATH="$SDK_ROOT/cmdline-tools/latest/bin:$SDK_ROOT/platform-tools:$PATH"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> $GITHUB_ENV
+          echo "$SDK_ROOT/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          echo "$SDK_ROOT/platform-tools" >> $GITHUB_PATH
+
+          yes | "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --licenses
+          "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --install "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+
+      # ---- Install Gradle (no wrapper in repo) ----
       - name: Install Gradle 8.7
         run: |
+          set -e
           curl -s https://get.sdkman.io | bash
           source "$HOME/.sdkman/bin/sdkman-init.sh"
           sdk install gradle 8.7
           echo "$HOME/.sdkman/candidates/gradle/current/bin" >> $GITHUB_PATH
 
-      # Build Debug APK (use PROJECT_DIR so it works in a subfolder too)
+      # ---- Build Debug APK ----
       - name: Build Debug APK
         working-directory: ${{ env.PROJECT_DIR }}
         run: gradle assembleDebug
 
-      # Locate any debug APK and upload it
+      # ---- Locate APK (any module) ----
       - name: Locate APK
         id: locate_apk
         working-directory: ${{ env.PROJECT_DIR }}
@@ -59,13 +67,13 @@ jobs:
           set -e
           APK=$(ls -1 **/outputs/apk/debug/*.apk 2>/dev/null | head -n 1 || true)
           if [ -z "$APK" ]; then
-            echo "No debug APK found. Project dir tree:"
-            ls -R
+            echo "No debug APK found. Tree for debugging:"; ls -R
             exit 1
           fi
           echo "Found APK: $APK"
           echo "apk_path=$APK" >> "$GITHUB_OUTPUT"
 
+      # ---- Upload artifact ----
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
