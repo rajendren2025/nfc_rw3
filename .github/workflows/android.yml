@@ -54,20 +54,43 @@ jobs:
           echo "$HOME/.sdkman/candidates/gradle/current/bin" >> $GITHUB_PATH
 
       # ---- Build Debug APK ----
+      #- name: Build Debug APK
+      #  working-directory: ${{ env.PROJECT_DIR }}
+      #  run: gradle assembleDebug
       - name: Build Debug APK
         working-directory: ${{ env.PROJECT_DIR }}
-        run: gradle assembleDebug
+        run: |
+          set -e
+          gradle --version
+          gradle :app:assembleDebug --no-daemon --stacktrace
+          echo "== List potential outputs =="
+          ls -R app/build/outputs || true
+
 
       # ---- Locate APK (any module) ----
+      #- name: Locate APK
+      #  id: locate_apk
+      #  working-directory: ${{ env.PROJECT_DIR }}
+      #  shell: bash
+      #  run: |
+      #    set -e
+      #    APK=$(ls -1 **/outputs/apk/debug/*.apk 2>/dev/null | head -n 1 || true)
+      #    if [ -z "$APK" ]; then
+      #      echo "No debug APK found. Tree for debugging:"; ls -R
+      #      exit 1
+      #    fi
+      #    echo "Found APK: $APK"
+      #    echo "apk_path=$APK" >> "$GITHUB_OUTPUT"
       - name: Locate APK
         id: locate_apk
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
         run: |
           set -e
-          APK=$(ls -1 **/outputs/apk/debug/*.apk 2>/dev/null | head -n 1 || true)
-          if [ -z "$APK" ]; then
-            echo "No debug APK found. Tree for debugging:"; ls -R
+          APK="app/build/outputs/apk/debug/app-debug.apk"
+          if [ ! -f "$APK" ]; then
+            echo "APK not found at $APK"
+            echo "Tree for debugging:"; ls -R
             exit 1
           fi
           echo "Found APK: $APK"
