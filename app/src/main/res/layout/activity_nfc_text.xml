@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+  <LinearLayout
+      android:orientation="vertical" android:padding="16dp"
+      android:layout_width="match_parent" android:layout_height="wrap_content">
+
+      <TextView
+          android:id="@+id/byteInfo"
+          android:text="0 bytes (pages needed: 0)"
+          android:layout_width="match_parent" android:layout_height="wrap_content"
+          android:layout_marginBottom="6dp"/>
+
+      <EditText
+          android:id="@+id/rawData"
+          android:hint="Enter ASCII text or HEX (toggle below)"
+          android:inputType="textMultiLine"
+          android:minLines="4"
+          android:gravity="top|start"
+          android:layout_width="match_parent" android:layout_height="wrap_content" />
+
+      <LinearLayout
+          android:orientation="horizontal"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="8dp">
+
+          <TextView
+              android:text="HEX input"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_gravity="center_vertical"/>
+
+          <Switch
+              android:id="@+id/switchHex"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_marginStart="8dp"/>
+
+          <TextView
+              android:text="Start page:"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_marginStart="24dp"
+              android:layout_gravity="center_vertical"/>
+
+          <EditText
+              android:id="@+id/rawStartPage"
+              android:layout_width="64dp"
+              android:layout_height="wrap_content"
+              android:inputType="number"
+              android:hint="4"
+              android:layout_marginStart="8dp"/>
+
+          <TextView
+              android:text="Pages (blank = auto):"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_marginStart="24dp"
+              android:layout_gravity="center_vertical"/>
+
+          <EditText
+              android:id="@+id/rawPages"
+              android:layout_width="72dp"
+              android:layout_height="wrap_content"
+              android:inputType="number"
+              android:hint="auto"
+              android:layout_marginStart="8dp"/>
+      </LinearLayout>
+
+      <View
+          android:layout_width="match_parent"
+          android:layout_height="1dp"
+          android:background="#33000000"
+          android:layout_marginTop="12dp"
+          android:layout_marginBottom="8dp" />
+
+      <LinearLayout
+          android:orientation="horizontal"
+          android:layout_width="match_parent" android:layout_height="wrap_content">
+
+          <Button
+              android:id="@+id/btnRawRead"
+              android:text="RAW READ"
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_weight="1" />
+
+          <View
+              android:layout_width="12dp" android:layout_height="0dp" />
+
+          <Button
+              android:id="@+id/btnRawWrite"
+              android:text="RAW WRITE"
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_weight="1" />
+
+          <View
+              android:layout_width="12dp" android:layout_height="0dp" />
+
+          <Button
+              android:id="@+id/btnClear"
+              android:text="CLEAR"
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_weight="1" />
+      </LinearLayout>
+
+      <TextView
+          android:id="@+id/status"
+          android:text="Status: ready"
+          android:textStyle="bold"
+          android:layout_width="match_parent" android:layout_height="wrap_content"
+          android:layout_marginTop="16dp" />
+
+      <TextView
+          android:id="@+id/tagInfo"
+          android:text="Tag: (tap to read/write)"
+          android:layout_width="match_parent" android:layout_height="wrap_content"
+          android:layout_marginTop="8dp" />
+
+      <TextView
+          android:id="@+id/lastRead"
+          android:text="RAW dump will appear here"
+          android:layout_width="match_parent" android:layout_height="wrap_content"
+          android:layout_marginTop="8dp" />
+  </LinearLayout>
+</ScrollView>
